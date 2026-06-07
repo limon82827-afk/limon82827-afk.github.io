@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>404号公寓 v2.0</title>
+<style>
+body{margin:0;background:#050505;color:#e5e5e5;font-family:Consolas,monospace}
+#app{max-width:900px;margin:auto;padding:20px}
+.box{background:#111;border:1px solid #333;padding:16px;border-radius:10px;margin:10px 0}
+.btn{display:block;width:100%;margin:8px 0;padding:12px;background:#1a1a1a;color:#fff;border:1px solid #444;border-radius:8px}
+.chat{background:#0f0f0f;padding:10px;border-left:4px solid #00d084;margin:8px 0}
+input{width:100%;padding:10px;background:#000;color:#fff;border:1px solid #555}
+.red{color:#ff6b6b}
+.hidden{display:none}
+</style>
+</head>
+<body>
+<div id="app">
+<h1>404号公寓 v2.0</h1>
+<div id="content" class="box"></div>
+<div id="choices"></div>
+</div>
+
+<script>
+const content=document.getElementById("content");
+const choices=document.getElementById("choices");
+
+let ng=localStorage.getItem("404_newgame");
+if(!ng){localStorage.setItem("404_newgame","1")}
+const secondRun=localStorage.getItem("404_true_end")==="1";
+
+function show(html){content.innerHTML=html}
+function clearChoices(){choices.innerHTML=""}
+function addBtn(text,fn){
+ let b=document.createElement("button");
+ b.className="btn"; b.textContent=text; b.onclick=fn;
+ choices.appendChild(b);
+}
+
+function start(){
+ clearChoices();
+ show(secondRun?
+ "<p class='red'>你回来了。</p><p>未知号码似乎知道你已经通关过一次。</p>":
+ "<p>2026年11月17日 凌晨1:42</p><p>你收到一条短信。</p>");
+ addBtn("查看短信",sms);
+}
+
+function sms(){
+ clearChoices();
+ show(`<div class="chat">未知号码：别来404。——王浩</div>`);
+ addBtn("回复：你是谁？",reply);
+ addBtn("忽略短信",ignore);
+}
+
+function reply(){
+ clearChoices();
+ show(`<div class="chat">你知道我是谁。</div>
+ <div class="chat">如果想知道答案，来404号公寓。</div>`);
+ addBtn("前往404",hall);
+}
+
+function ignore(){
+ clearChoices();
+ show("十分钟后，你收到一张钥匙照片，背面写着：404");
+ addBtn("前往404",hall);
+}
+
+function hall(){
+ clearChoices();
+ show("404房门虚掩着。门口有一部手机。");
+ addBtn("查看手机",phone);
+ addBtn("直接进门",room);
+}
+
+function phone(){
+ clearChoices();
+ show("相册里全是同一个人的照片。而那个人长得和你一模一样。最后一张照片写着数字：2415");
+ addBtn("进入房间",room);
+}
+
+function room(){
+ clearChoices();
+ show("电脑亮着：实验编号404。请输入密码。");
+ choices.innerHTML=`<input id="pwd" placeholder="输入密码"><button class="btn" onclick="checkPwd()">解锁</button>`;
+}
+
+window.checkPwd=function(){
+ const v=document.getElementById("pwd").value;
+ if(v==="2415"){desktop();}
+ else show("<span class='red'>ACCESS DENIED</span><br>密码错误。");
+}
+
+function desktop(){
+ clearChoices();
+ show(`
+ <h3>电脑桌面</h3>
+ <button class="btn" onclick="openFile('record')">实验记录</button>
+ <button class="btn" onclick="openFile('camera')">监控录像</button>
+ <button class="btn" onclick="openFile('patient')">患者档案</button>
+ <button class="btn" onclick="openFile('restore')">恢复记忆</button>
+ `);
+}
+
+window.openFile=function(type){
+ clearChoices();
+ if(type==="record"){
+   show("实验编号404，第17次记忆重置失败。");
+   addBtn("返回桌面",desktop);
+ }
+ if(type==="camera"){
+   show("监控时间03:16。房间里站着一个人。<br><br>那个人正在看监控。<br><br><span class='red'>是你。</span>");
+   addBtn("返回桌面",desktop);
+ }
+ if(type==="patient"){
+   show("患者姓名：王浩。状态：长期昏迷。404 = Memory Not Found");
+   addBtn("返回桌面",desktop);
+ }
+ if(type==="restore"){
+   restore();
+ }
+}
+
+function restore(){
+ clearChoices();
+ show("是否恢复记忆？");
+ addBtn("是",trueEnd);
+ addBtn("否",loopEnd);
+}
+
+function loopEnd(){
+ clearChoices();
+ show("<span class='red'>正在执行记忆重置...</span><br><br>你再次收到短信：别来404。<br><br>【循环结局】<br>存档代码：R404-LOOP");
+ addBtn("重新开始",start);
+}
+
+function trueEnd(){
+ localStorage.setItem("404_true_end","1");
+ clearChoices();
+ show("404 = Memory Not Found<br><br>病人恢复意识。<br><br>欢迎回来，王浩。<br><br>【真结局】<br>存档代码：R404-TRUE");
+ addBtn("二周目开始",start);
+}
+
+start();
+</script>
+</body>
+</html>
